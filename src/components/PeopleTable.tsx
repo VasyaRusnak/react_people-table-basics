@@ -1,5 +1,5 @@
 import { Person } from '../types/Person';
-import { PersonLink } from "../PersonLink";
+import { Link } from 'react-router-dom';
 
 type Props = {
   people: Person[];
@@ -23,45 +23,61 @@ export const PeopleTable: React.FC<Props> = ({ people, selectedSlug }) => (
     </thead>
 
     <tbody>
-    {people.map((person) => (
-      <tr
-        key={person.slug}
-        data-cy="person"
-        className={person.slug === selectedSlug ? 'has-background-warning' : ''}
-      >
-        {/* Person */}
-        <td><PersonLink person={person} /></td>
-        <td>{person.sex}</td>
-        <td>{person.born}</td>
-        <td>{person.died}</td>
+    {people.map((person) => {
+      const mother = people.find((p) => p.name === person.motherName);
+      const father = people.find((p) => p.name === person.fatherName);
 
-        {/* Mother */}
-        <td>
-          {people.find(p => p.name === person.motherName) ? (
-            <PersonLink person={people.find(p => p.name === person.motherName)!} />
-          ) : person.motherName ? (
-            <span className={person.motherSex === 'f' ? 'has-text-danger' : ''}>
-                {person.motherName}
-              </span>
-          ) : (
-            '-'
-          )}
-        </td>
+      return (
+        <tr
+          key={person.slug}
+          data-cy="person"
+          className={person.slug === selectedSlug ? 'has-background-warning' : ''}
+        >
+          {/* Name */}
+          <td>
+            <Link
+              to={`/people/${person.slug}`}
+              className={person.sex === 'f' ? 'has-text-danger' : ''}
+            >
+              {person.name}
+            </Link>
+          </td>
 
-        {/* Father */}
-        <td>
-          {people.find(p => p.name === person.fatherName) ? (
-            <PersonLink person={people.find(p => p.name === person.fatherName)!} />
-          ) : person.fatherName ? (
-            <span className={person.fatherSex === 'f' ? 'has-text-danger' : ''}>
-                {person.fatherName}
-              </span>
-          ) : (
-            '-'
-          )}
-        </td>
-      </tr>
-    ))}
+          {/* Sex, Born, Died */}
+          <td>{person.sex}</td>
+          <td>{person.born}</td>
+          <td>{person.died}</td>
+
+          {/* Mother */}
+          <td>
+            {mother ? (
+              <Link
+                to={`/people/${mother.slug}`}
+                className={mother.sex === 'f' ? 'has-text-danger' : ''}
+              >
+                {mother.name}
+              </Link>
+            ) : (
+              person.motherName || '-'
+            )}
+          </td>
+
+          {/* Father */}
+          <td>
+            {father ? (
+              <Link
+                to={`/people/${father.slug}`}
+                className={father.sex === 'f' ? 'has-text-danger' : ''}
+              >
+                {father.name}
+              </Link>
+            ) : (
+              person.fatherName || '-'
+            )}
+          </td>
+        </tr>
+      );
+    })}
     </tbody>
   </table>
 );
